@@ -1,0 +1,37 @@
+name: CI Pipeline
+
+# Déclencheur des actions (on push ou pull_request sur la branche main)
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+# Définition des jobs
+jobs:
+  build:
+    runs-on: ubuntu-latest # Spécifie l'environnement d'exécution (Ubuntu récent)
+
+    steps:
+      # Étape 1 : Checkout du code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Étape 2 : Configuration de Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'  # Version de Python que vous souhaitez utiliser
+
+      # Étape 3 : Installation des dépendances
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip  # Mise à jour de pip
+          pip install -r requirements.txt     # Installation des dépendances depuis requirements.txt
+
+      # Étape 4 : Exécution des tests
+      - name: Run tests
+        run: |
+          pytest # Exécution des tests avec pytest. Changez cela si vous utilisez un autre framework
