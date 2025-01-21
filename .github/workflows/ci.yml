@@ -99,7 +99,7 @@ jobs:
   notify:
     runs-on: ubuntu-latest  # Spécifie l'environnement d'exécution (Ubuntu récent)
     needs: test  # Ce job dépend du job test et sera exécuté uniquement si le job test échoue
-    if: failure()  # Ce job ne sera exécuté que si le job 'test' échoue
+    if: success()  # Ce job ne sera exécuté que si le job 'test' échoue
 
     steps:
       - name: Send notification email if test fails
