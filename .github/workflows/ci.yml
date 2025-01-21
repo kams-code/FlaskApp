@@ -95,7 +95,7 @@ jobs:
         run: |
           pytest  # Exécution des tests unitaires avec pytest (ou utilisez votre framework préféré)
 
-  # Job pour envoyer une notification par e-mail si les tests échouent
+  # Job pour envoyer une notification par e-mail si les tests échouent  ...
   notify:
     runs-on: ubuntu-latest  # Spécifie l'environnement d'exécution (Ubuntu récent)
     needs: test  # Ce job dépend du job test et sera exécuté uniquement si le job test échoue
