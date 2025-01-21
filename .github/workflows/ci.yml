@@ -66,8 +66,8 @@ jobs:
       - name: Push Docker image to Private Docker Registry
         if: success()  # Cette étape ne sera exécutée que si le job test précédent a réussi
         run: |
-          docker tag ${{ secrets.DOCKER_USERNAME }}/flask-app-private:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/flask-app-private:${{ github.sha }}
-          docker push ${{ secrets.DOCKER_USERNAME }}/flask-app-private:${{ github.sha }}
+          docker tag ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }}
           
  # Job pour l'exécution des tests unitaires
   test:
