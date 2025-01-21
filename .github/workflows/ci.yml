@@ -108,7 +108,7 @@ jobs:
           server_address: smtp.gmail.com  # Serveur SMTP de Gmail
           server_port: 465  # Port sécurisé de Gmail (465)
           username: ${{ secrets.GMAIL_USERNAME }}  # Nom d'utilisateur (votre adresse Gmail)
-          password: ${{ secrets.GMAIL_APP_PASSWORD }}  # Mot de passe d'application Gmail
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}  # Mot de passe d'application Gmail ,
           subject: "Tests Failed in GitHub Actions"
           body: |
             <h2>Attention ! Les tests ont échoué dans votre pipeline GitHub Actions</h2>
