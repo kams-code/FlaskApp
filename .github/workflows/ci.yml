@@ -55,20 +55,20 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }}
 
-      # # Étape 8 : Connexion au registre privé (exemple pour GitHub Container Registry)
-      # - name: Log in to GitHub Container Registry
-      #   uses: docker/login-action@v2
-      #   with:
-      #     username: ${{ github.actor }}
-      #     password: ${{ secrets.TOKEN_GITHUB }}  # Utilisation du token d'authentification de GitHub
-
-      # Étape 9 : Pousser l'image vers le GitHub Container Registry
-      - name: Push Docker image to GitHub Container Registry
-        if : success()
+        # Étape 7 : Connexion au registre privé Docker
+      - name: Log in to Private Docker Registry
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}  # Votre nom d'utilisateur pour le registre privé
+          password: ${{ secrets.DOCKER_PASSWORD }}  # Votre mot de passe ou jeton d'accès pour le registre privé
+      
+            # Étape 8 : Pousser l'image vers le registre privé Docker (conditionnée par le succès du job 'test')
+      - name: Push Docker image to Private Docker Registry
+        if: success()  # Cette étape ne sera exécutée que si le job test précédent a réussi
         run: |
-          docker tag ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }} ghcr.io/${{ github.repository_owner }}/flask-app:${{ github.sha }}
-          docker push ghcr.io/${{ github.repository_owner }}/flask-app:${{ github.sha }}
-
+          docker tag ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }}
+          
  # Job pour l'exécution des tests unitaires
   test:
     runs-on: ubuntu-latest  # Spécifie l'environnement d'exécution (Ubuntu récent)
