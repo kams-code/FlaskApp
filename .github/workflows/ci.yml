@@ -13,6 +13,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest # Spécifie l'environnement d'exécution (Ubuntu récent)
+    needs: test
 
     steps:
       # Étape 1 : Checkout du code
@@ -50,5 +51,67 @@ jobs:
 
       # Étape 7 : Pousser l'image Docker sur Docker Hub
       - name: Push Docker image
+        if : success()
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }}
+
+      # Étape 8 : Connexion au registre privé (exemple pour GitHub Container Registry)
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.TOKEN_GITHUB }}  # Utilisation du token d'authentification de GitHub
+
+      # Étape 9 : Pousser l'image vers le GitHub Container Registry
+      - name: Push Docker image to GitHub Container Registry
+        if : success()
+        run: |
+          docker tag ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }} ghcr.io/${{ github.repository_owner }}/flask-app:${{ github.sha }}
+          docker push ghcr.io/${{ github.repository_owner }}/flask-app:${{ github.sha }}
+
+ # Job pour l'exécution des tests unitaires
+  test:
+    runs-on: ubuntu-latest  # Spécifie l'environnement d'exécution (Ubuntu récent)
+
+    steps:
+      # Étape 1 : Checkout du code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Étape 2 : Configuration de Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'  # Version de Python que vous souhaitez utiliser
+
+      # Étape 3 : Installation des dépendances
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip  # Mise à jour de pip
+          pip install -r requirements.txt     # Installation des dépendances depuis requirements.txt
+
+      # Étape 4 : Exécution des tests unitaires
+      - name: Run unit tests
+        run: |
+          pytest  # Exécution des tests unitaires avec pytest (ou utilisez votre framework préféré)
+
+  # Job pour envoyer une notification par e-mail si les tests échouent
+  notify:
+    runs-on: ubuntu-latest  # Spécifie l'environnement d'exécution (Ubuntu récent)
+    needs: test  # Ce job dépend du job test et sera exécuté uniquement si le job test échoue
+    if: failure()  # Ce job ne sera exécuté que si le job 'test' échoue
+
+    steps:
+      - name: Send notification email if test fails
+        uses: dawidd6/action-send-mail@v3  # Action pour envoyer un e-mail
+        with:
+          server_address: smtp.gmail.com  # Serveur SMTP de Gmail
+          server_port: 465  # Port sécurisé de Gmail (465)
+          username: ${{ secrets.GMAIL_USERNAME }}  # Nom d'utilisateur (votre adresse Gmail)
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}  # Mot de passe d'application Gmail
+          subject: "Tests Failed in GitHub Actions"
+          body: |
+            <h2>Attention ! Les tests ont échoué dans votre pipeline GitHub Actions</h2>
+            <p>Les tests unitaires de l'application Flask ont échoué. Veuillez vérifier les logs pour plus de détails.</p>
+          to: jhon@gmail.com  # Destinataire de l'e-mail
+          from: ${{ secrets.GMAIL_USERNAME }}  # Adresse e-mail de l'expéditeur (votre adresse Gmail)
