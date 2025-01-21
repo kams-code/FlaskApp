@@ -35,3 +35,20 @@ jobs:
       - name: Run tests
         run: |
           pytest # Exécution des tests avec pytest. Changez cela si vous utilisez un autre framework
+
+      # Étape 5 : Construction de l'image Docker
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }} .
+
+      # Étape 6 : Connexion à Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Étape 7 : Pousser l'image Docker sur Docker Hub
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }}
